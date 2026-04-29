@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>POST TITLE — Internet Elephant</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,350;0,380;0,400;0,450;0,500;1,380&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #F2F4F7;
+      --rail-bg:   #ECEFF3;
+      --card-bg:   #E5E9EE;
+      --tint-bg:   #E0E5EB;
+      --fg:        #0F1419;
+      --fg2:       #2C333D;
+      --muted:     #6A727D;
+      --faint:     #98A0AB;
+      --accent:    #1F5BFF;
+      --rule:      #D2D8DF;
+      --font-body: 'Inter Tight', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--fg); font-family: var(--font-body); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+
+    /* ── top bar ───────────────────────────────────── */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(236,239,243,0.92);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--rule);
+      padding: 0 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 52px;
+    }
+    .topbar-back {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 13px; font-weight: 450; color: var(--muted);
+      text-decoration: none; letter-spacing: -0.005em;
+      transition: color 160ms ease;
+    }
+    .topbar-back:hover { color: var(--fg2); }
+    .topbar-right {
+      font-size: 11px; letter-spacing: 0.05em;
+      color: var(--faint); font-family: var(--font-mono);
+    }
+
+    /* ── article ───────────────────────────────────── */
+    .article { max-width: 860px; margin: 0 auto; padding: 72px 48px 120px; }
+
+    /* ── header ────────────────────────────────────── */
+    .post-eyebrow {
+      display: inline-block; font-size: 10px; letter-spacing: 0.14em;
+      text-transform: uppercase; margin-bottom: 20px;
+      color: var(--faint); font-family: var(--font-mono);
+    }
+    .post-title {
+      font-size: 36px; line-height: 1.07; font-weight: 350;
+      letter-spacing: -0.025em; color: var(--fg);
+      margin: 0 0 18px;
+    }
+    .post-meta {
+      font-size: 10px; letter-spacing: 0.07em; color: var(--faint);
+      font-family: var(--font-mono); display: flex; gap: 6px;
+      align-items: center; margin-bottom: 28px;
+    }
+    .post-tag {
+      border: 1px solid var(--rule); padding: 1px 6px; border-radius: 2px;
+      font-size: 9px; letter-spacing: 0.1em; color: var(--fg2); margin: 0 2px;
+    }
+    .post-lede {
+      font-size: 16px; line-height: 1.6; color: var(--fg2); font-weight: 380;
+      padding-bottom: 36px; border-bottom: 1px solid var(--rule);
+      text-wrap: pretty;
+    }
+
+    /* ── body ──────────────────────────────────────── */
+    .post-body { margin-top: 40px; }
+
+    /* SECTION HEADING — copy for each new section */
+    .post-h2 {
+      font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--fg2); font-family: var(--font-mono);
+      margin: 64px 0 20px; padding-left: 12px;
+      border-left: 2px solid var(--accent);
+    }
+    .post-h2:first-child { margin-top: 0; }
+
+    /* BODY PARAGRAPH */
+    .post-p {
+      font-size: 15px; line-height: 1.7; color: var(--fg2);
+      font-weight: 380; margin: 0 0 16px; text-wrap: pretty;
+    }
+    .post-p em     { font-style: italic; opacity: 0.9; }
+    .post-p strong { font-weight: 500; color: var(--fg); }
+    .post-p code   { font-family: var(--font-mono); font-size: 12.5px; background: var(--card-bg); padding: 1px 5px; border-radius: 2px; color: var(--fg2); }
+    .post-p a      { color: var(--accent); text-decoration: none; }
+    .post-p a:hover { text-decoration: underline; }
+
+    /* CODE BLOCK */
+    .post-code {
+      background: var(--card-bg); border-radius: 4px;
+      padding: 16px 20px; font-family: var(--font-mono);
+      font-size: 12.5px; line-height: 1.7; color: var(--fg2);
+      margin: 0 0 20px; overflow-x: auto;
+      border-left: 2px solid var(--accent);
+      white-space: pre;
+    }
+
+    /* CALLOUT / NOTE BOX */
+    .post-callout {
+      margin: 24px 0; padding: 16px 18px;
+      border: 1px solid var(--rule); border-radius: 4px;
+      font-size: 13.5px; line-height: 1.55;
+      display: flex; gap: 14px; align-items: flex-start;
+      color: var(--fg2); background: var(--card-bg);
+    }
+    .post-callout-tag {
+      font-size: 9px; letter-spacing: 0.16em; padding: 2px 7px;
+      border-radius: 2px; flex-shrink: 0; margin-top: 2px;
+      background: var(--fg); color: var(--bg); font-family: var(--font-mono);
+    }
+
+    /* NUMBERED STEPS */
+    .post-ol {
+      list-style: none; padding: 0; margin: 0 0 20px; counter-reset: steps;
+    }
+    .post-ol li {
+      counter-increment: steps;
+      display: grid; grid-template-columns: 28px 1fr;
+      gap: 12px; align-items: baseline;
+      font-size: 15px; line-height: 1.7; color: var(--fg2);
+      font-weight: 380; padding: 8px 0;
+      border-top: 1px solid var(--rule);
+    }
+    .post-ol li:last-child { border-bottom: 1px solid var(--rule); }
+    .post-ol li::before {
+      content: counter(steps, decimal-leading-zero);
+      font-size: 10px; font-family: var(--font-mono);
+      letter-spacing: 0.06em; color: var(--accent); padding-top: 4px;
+    }
+
+    /* BULLET LIST */
+    .post-ul { list-style: none; padding: 0; margin: 0 0 20px; }
+    .post-ul li {
+      position: relative; padding-left: 18px;
+      font-size: 15px; line-height: 1.7; color: var(--fg2);
+      font-weight: 380; padding-bottom: 6px;
+    }
+    .post-ul li::before {
+      content: ''; position: absolute;
+      left: 0; top: 0.62em;
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--accent);
+    }
+
+    /* ── post nav ──────────────────────────────────── */
+    .post-nav {
+      margin-top: 80px; padding-top: 28px;
+      border-top: 1px solid var(--rule);
+    }
+    .post-nav-link {
+      font-size: 13px; font-weight: 450; color: var(--muted);
+      text-decoration: none; letter-spacing: -0.005em;
+      transition: color 160ms ease, transform 200ms ease;
+      display: inline-block;
+    }
+    .post-nav-link:hover { color: var(--fg2); transform: translateX(-3px); }
+
+    /* ── responsive ─────────────────────────────────── */
+    @media (max-width: 768px) {
+      .topbar { padding: 0 20px; }
+      .article { padding: 48px 24px 80px; }
+      .post-title { font-size: 28px; }
+      .post-lede { font-size: 15px; }
+    }
+    @media (max-width: 480px) {
+      .article { padding: 36px 18px 64px; }
+      .post-title { font-size: 24px; }
+      .topbar-right { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="topbar-back" href="index.html">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    Internet Elephant
+  </a>
+  <span class="topbar-right">Guides</span>
+</header>
+
+<article class="article">
+
+  <!-- ── post header ── -->
+  <span class="post-eyebrow">03 — Guides</span>
+  <h1 class="post-title">POST TITLE HERE</h1>
+  <div class="post-meta">
+    YYYY · MM · DD
+    <span class="post-tag">TAG</span>
+    N min
+  </div>
+  <p class="post-lede">
+    LEDE — one or two sentences. The hook. What this guide does and who it's for.
+  </p>
+
+  <!-- ── post body ── -->
+  <div class="post-body">
+
+    <!-- SECTION — copy the h2 + content block below for each new section -->
+    <h2 class="post-h2">Section heading</h2>
+
+    <p class="post-p">
+      Body paragraph. Use <strong>strong</strong> for key terms, <em>italic</em> for
+      emphasis, and <code>inline code</code> for commands, filenames, and paths.
+    </p>
+
+    <!-- SCREENSHOT (full width) — use for most screenshots -->
+    <!-- <img src="screenshots-guides/FILENAME.png" alt="DESCRIPTION" style="width:100%;border-radius:4px;display:block;margin:20px 0;"> -->
+
+    <!-- SCREENSHOT (fixed size) — use for small UI elements, icons, or popups that would look bad stretched -->
+    <!-- <img src="screenshots-guides/FILENAME.png" alt="DESCRIPTION" style="width:320px;max-width:100%;border-radius:4px;display:block;margin:20px 0;"> -->
+
+    <!-- CODE BLOCK — copy/paste for terminal commands or config snippets -->
+    <pre class="post-code">your command or config here</pre>
+
+    <!-- CALLOUT / NOTE — copy/paste for warnings, tips, or asides -->
+    <div class="post-callout">
+      <span class="post-callout-tag">NOTE</span>
+      <span>Callout text here. Use for warnings, prerequisites, or tips that sit outside the main flow.</span>
+    </div>
+
+    <!-- NUMBERED STEPS — copy/paste for sequential how-to steps -->
+    <ol class="post-ol">
+      <li>First step.</li>
+      <li>Second step.</li>
+      <li>Third step.</li>
+    </ol>
+
+    <!-- BULLET LIST — copy/paste for unordered items -->
+    <ul class="post-ul">
+      <li>First item.</li>
+      <li>Second item.</li>
+    </ul>
+
+    <!-- add more sections by copying the h2 + content block above -->
+
+  </div><!-- end post-body -->
+
+  <!-- ── post navigation ── -->
+  <nav class="post-nav" aria-label="Post navigation">
+    <a href="index.html#sec-guides" class="post-nav-link">← Internet Elephant</a>
+  </nav>
+
+</article>
+</body>
+</html>

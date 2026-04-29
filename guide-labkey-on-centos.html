@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Installing LabKey on CentOS 7 — Internet Elephant</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,350;0,380;0,400;0,450;0,500;1,380&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #F2F4F7; --rail-bg: #ECEFF3; --card-bg: #E5E9EE; --tint-bg: #E0E5EB;
+      --fg: #0F1419; --fg2: #2C333D; --muted: #6A727D; --faint: #98A0AB;
+      --accent: #1F5BFF; --rule: #D2D8DF;
+      --font-body: 'Inter Tight', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--fg); font-family: var(--font-body); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+    .topbar { position: sticky; top: 0; z-index: 100; background: rgba(236,239,243,0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--rule); padding: 0 48px; display: flex; align-items: center; justify-content: space-between; height: 52px; }
+    .topbar-back { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 450; color: var(--muted); text-decoration: none; letter-spacing: -0.005em; transition: color 160ms ease; }
+    .topbar-back:hover { color: var(--fg2); }
+    .topbar-right { font-size: 11px; letter-spacing: 0.05em; color: var(--faint); font-family: var(--font-mono); }
+    .article { max-width: 860px; margin: 0 auto; padding: 72px 48px 120px; }
+    .post-eyebrow { display: inline-block; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 20px; color: var(--faint); font-family: var(--font-mono); }
+    .post-title { font-size: 36px; line-height: 1.07; font-weight: 350; letter-spacing: -0.025em; color: var(--fg); margin: 0 0 18px; }
+    .post-meta { font-size: 10px; letter-spacing: 0.07em; color: var(--faint); font-family: var(--font-mono); display: flex; gap: 6px; align-items: center; margin-bottom: 28px; }
+    .post-tag { border: 1px solid var(--rule); padding: 1px 6px; border-radius: 2px; font-size: 9px; letter-spacing: 0.1em; color: var(--fg2); margin: 0 2px; }
+    .post-lede { font-size: 16px; line-height: 1.6; color: var(--fg2); font-weight: 380; padding-bottom: 36px; border-bottom: 1px solid var(--rule); text-wrap: pretty; }
+    .post-body { margin-top: 40px; }
+    .post-h2 { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg2); font-family: var(--font-mono); margin: 64px 0 20px; padding-left: 12px; border-left: 2px solid var(--accent); }
+    .post-h2:first-child { margin-top: 0; }
+    .post-p { font-size: 15px; line-height: 1.7; color: var(--fg2); font-weight: 380; margin: 0 0 16px; text-wrap: pretty; }
+    .post-p em { font-style: italic; opacity: 0.9; }
+    .post-p strong { font-weight: 500; color: var(--fg); }
+    .post-p code { font-family: var(--font-mono); font-size: 12.5px; background: var(--card-bg); padding: 1px 5px; border-radius: 2px; color: var(--fg2); }
+    .post-p a { color: var(--accent); text-decoration: none; }
+    .post-p a:hover { text-decoration: underline; }
+    .post-code { background: var(--card-bg); border-radius: 4px; padding: 16px 20px; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.7; color: var(--fg2); margin: 0 0 20px; overflow-x: auto; border-left: 2px solid var(--accent); white-space: pre; }
+    .post-callout { margin: 24px 0; padding: 16px 18px; border: 1px solid var(--rule); border-radius: 4px; font-size: 13.5px; line-height: 1.55; display: flex; gap: 14px; align-items: flex-start; color: var(--fg2); background: var(--card-bg); }
+    .post-callout-tag { font-size: 9px; letter-spacing: 0.16em; padding: 2px 7px; border-radius: 2px; flex-shrink: 0; margin-top: 2px; background: var(--fg); color: var(--bg); font-family: var(--font-mono); }
+    .post-ul { list-style: none; padding: 0; margin: 0 0 20px; }
+    .post-ul li { position: relative; padding-left: 18px; font-size: 15px; line-height: 1.7; color: var(--fg2); font-weight: 380; padding-bottom: 6px; }
+    .post-ul li::before { content: ''; position: absolute; left: 0; top: 0.62em; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+    .post-nav { margin-top: 80px; padding-top: 28px; border-top: 1px solid var(--rule); }
+    .post-nav-link { font-size: 13px; font-weight: 450; color: var(--muted); text-decoration: none; letter-spacing: -0.005em; transition: color 160ms ease, transform 200ms ease; display: inline-block; }
+    .post-nav-link:hover { color: var(--fg2); transform: translateX(-3px); }
+    @media (max-width: 768px) { .topbar { padding: 0 20px; } .article { padding: 48px 24px 80px; } .post-title { font-size: 28px; } .post-lede { font-size: 15px; } }
+    @media (max-width: 480px) { .article { padding: 36px 18px 64px; } .post-title { font-size: 24px; } .topbar-right { display: none; } }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="topbar-back" href="index.html">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+    Internet Elephant
+  </a>
+  <span class="topbar-right">Guides</span>
+</header>
+
+<article class="article">
+
+  <span class="post-eyebrow">03 — Guides</span>
+  <h1 class="post-title">Installing LabKey on CentOS 7</h1>
+  <div class="post-meta">
+    2018 · 02 · 18
+    <span class="post-tag">sysadmin</span>
+  </div>
+  <p class="post-lede">
+    A manual, ground-up installation of LabKey Server on CentOS 7 — covering the full stack: Java, Tomcat, PostgreSQL, and LabKey itself. Built for easy long-term maintenance and clean in-place upgrades.
+  </p>
+
+  <img src="screenshots-guides/labkey1.png" alt="DESCRIPTION" style="width:100%;border-radius:4px;display:block;margin:20px 0;">
+
+  <div class="post-body">
+
+    <h2 class="post-h2">Introduction</h2>
+
+    <p class="post-p">Installing LabKey for your lab can be done a number of ways. This approach manually installs virtually all components of the LabKey software stack, allowing for easy long-term maintenance and upgrades.</p>
+
+    <h2 class="post-h2">Section 1 — Setting up CentOS 7</h2>
+
+    <p class="post-p">Begin by installing RHEL or CentOS 7 on your hardware or VM. For these instructions the CentOS 7 Minimal ISO was selected and installed in a VM with 8 GB memory, 2 cores, and a 64 GB drive. See <a href="https://www.labkey.org">LabKey's recommended hardware requirements</a> before sizing your own.</p>
+
+    <p class="post-p">After the install reboots, disable NetworkManager and configure a static IP via the networking scripts:</p>
+
+    <pre class="post-code">[root@localhost]# systemctl disable NetworkManager
+Removed symlink /etc/systemd/system/multi-user.target.wants/NetworkManager.service.
+Removed symlink /etc/systemd/system/dbus-org.freedesktop.NetworkManager.service.
+Removed symlink /etc/systemd/system/dbus-org.freedesktop.nm-dispatcher.service.</pre>
+
+    <p class="post-p">Configure the network script with values appropriate for your environment. Make sure <code>ONBOOT</code> is set to <code>yes</code>:</p>
+
+    <pre class="post-code">[root@localhost]# vi /etc/sysconfig/network-scripts/ifcfg-eth
+TYPE=Ethernet
+NAME=eth0
+IPADDR=10.17.0.101
+NETMASK=255.255.255.0
+GATEWAY=10.17.0.1
+DNS1=8.8.8.8
+DNS2=8.8.4.4
+NM_CONTROLLED=no
+BOOTPROTO=static
+ONBOOT=yes
+USERCTL=no
+DEFROUT=yes
+PEERDNS=yes
+PEERROUTES=yes
+IPV4_FAILURE_FATAL=no
+IPV6INIT=no</pre>
+
+    <pre class="post-code">[root@localhost]# systemctl restart network</pre>
+
+    <p class="post-p">Set a hostname if not configured at install time:</p>
+
+    <pre class="post-code">[root@localhost]# hostnamectl set-hostname lims-1
+[root@lims_1 ~]# hostname lims-1</pre>
+
+    <p class="post-p">Update the system and reboot:</p>
+
+    <pre class="post-code">[root@lims_1 ~]# yum -y update; reboot</pre>
+
+    <h2 class="post-h2">Section 2 — Preparing for LabKey's installation</h2>
+
+    <p class="post-p">Download the Server Java JRE from Oracle, LabKey from labkey.org, PostgreSQL, and Apache Tomcat. Move to the <code>src</code> directory and unpack everything there.</p>
+
+    <div class="post-callout">
+      <span class="post-callout-tag">NOTE</span>
+      <span>On the Java JRE download page, select the <strong>Server JRE</strong> — not the standard JRE. This improves both security and performance.</span>
+    </div>
+
+    <pre class="post-code">[root@lims_1 ~]# yum install wget gcc
+[root@lims_1 ~]# cd /usr/local/src</pre>
+
+    <p class="post-p">After downloading and unpacking, your <code>/usr/local/src</code> directory should look similar to this (version numbers will differ):</p>
+
+    <pre class="post-code">[root@lims-1 src]# ll -h
+total 242M
+drwxr-xr-x. apache-tomcat-8.5.4
+drwxr-xr-x. jdk1.8.0_101
+drwxr-xr-x. LabKey16.2-45209.14-community-bin
+drwxrwxrwx. postgresql-9.5.3</pre>
+
+    <p class="post-p">Create versioned directories in <code>/usr/local</code> and soft-link generic names to each — this makes future upgrades a single symlink change:</p>
+
+    <pre class="post-code">[root@lims_1 ~]# cd /usr/local
+[root@lims_1 local]# mkdir labkey-16.2 jre-8u101 tomcat-8.5.4 postgres-9.5.3
+[root@lims-1 local]# ln -s labkey-16.2 labkey
+[root@lims-1 local]# ln -s postgres-9.5.3 pgsql
+[root@lims-1 local]# ln -s jre-8u101 java
+[root@lims-1 local]# ln -s tomcat-8.5.4 tomcat</pre>
+
+    <p class="post-p">Install the JRE by moving it into the java directory:</p>
+
+    <pre class="post-code">[root@lims_1 local]# cd /usr/local/src
+[root@lims-1 src]# mv jdk1.8.0_101/* ../java/</pre>
+
+    <p class="post-p">Install and enable Apache to confirm the network stack is working before continuing:</p>
+
+    <pre class="post-code">[root@lims-1 local]# yum install httpd
+[root@lims-1 local]# systemctl start httpd</pre>
+
+    <p class="post-p">Verify it is working by loading <code>http://10.17.0.101</code> in a browser. Then make httpd start permanently:</p>
+
+    <pre class="post-code">[root@lims-1 local]# systemctl enable httpd</pre>
+
+    <div class="post-callout">
+      <span class="post-callout-tag">NOTE</span>
+      <span>If you cannot reach the Apache success page, check that your firewall has port 80 open.</span>
+    </div>
+
+    <h2 class="post-h2">Section 3 — Installing Tomcat 8</h2>
+
+    <p class="post-p">First, set the Java environment so the system always uses the right JRE regardless of any default CentOS Java installation:</p>
+
+    <pre class="post-code">[root@lims-1 local]# vi /etc/profile.d/java_env.sh</pre>
+
+    <p class="post-p">Enter the following, then save and close:</p>
+
+    <pre class="post-code">export JAVA_HOME=/usr/local/java
+export PATH=$JAVA_HOME/bin:$PATH</pre>
+
+    <p class="post-p">Source the file and verify Java is working:</p>
+
+    <pre class="post-code">[root@lims-1 local]# source /etc/profile.d/java_env.sh
+[root@lims-1 local]# java -version
+java version "1.8.0_101"
+Java(TM) SE Runtime Environment (build 1.8.0_101-b13)
+Java HotSpot(TM) 64-Bit Server VM (build 25.101-b13, mixed mode)</pre>
+
+    <p class="post-p">Move the Tomcat files, create a dedicated user, and set permissions:</p>
+
+    <pre class="post-code">[root@lims-1 local]# cp -R apache-tomcat-8.5.4/* /usr/local/tomcat-8.5.4/
+[root@lims-1 local]# cd /usr/local/tomcat
+[root@lims-1 tomcat]# groupadd tomcat
+[root@lims-1 tomcat]# useradd -s /bin/nologin -g tomcat -d /usr/local/tomcat tomcat
+[root@lims-1 tomcat]# chown -R tomcat.tomcat /usr/local/tomcat-8.5.4
+[root@lims-1 tomcat]# chmod g+rwx conf
+[root@lims-1 tomcat]# chmod g+r conf/*</pre>
+
+    <p class="post-p">Create a systemd service file tuned for LabKey:</p>
+
+    <pre class="post-code">[root@lims-1 tomcat]# vi /etc/systemd/system/tomcat.service</pre>
+
+    <pre class="post-code"># Systemd unit file for tomcat
+[Unit]
+Description=Apache Tomcat Web Application Container
+After=network.target
+
+[Service]
+Type=forking
+PIDFile=/usr/local/tomcat/temp/tomcat.pid
+Environment=JAVA_HOME=/usr/local/java
+Environment=CATALINA_PID=/usr/local/tomcat/temp/tomcat.pid
+Environment=CATALINA_HOME=/usr/local/tomcat
+Environment=CATALINA_BASE=/usr/local/tomcat
+Environment='CATALINA_OPTS=-Xms512M -Xmx2048M -server -XX:-HeapDumpOnOutOfMemoryError'
+Environment='JAVA_OPTS=-Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom'
+ExecStart=/usr/local/tomcat/bin/startup.sh
+ExecStop=/usr/local/tomcat/bin/shutdown.sh
+User=tomcat
+Group=tomcat
+
+[Install]
+WantedBy=multi-user.target</pre>
+
+    <p class="post-p">Integrate with systemd and start the service:</p>
+
+    <pre class="post-code">[root@lims-1 tomcat]# systemctl daemon-reload
+[root@lims-1 tomcat]# systemctl start tomcat</pre>
+
+    <p class="post-p">Verify Tomcat is running by loading <code>http://10.17.0.101:8080</code> in a browser.</p>
+
+    <div class="post-callout">
+      <span class="post-callout-tag">NOTE</span>
+      <span>If you started Tomcat manually before this step, you may have log files owned by root that the service cannot write to. Fix ownership before continuing.</span>
+    </div>
+
+    <h2 class="post-h2">Section 4 — Installing PostgreSQL</h2>
+
+    <p class="post-p">Install the OpenSSL development libraries and build dependencies, then compile PostgreSQL from source with SSL support:</p>
+
+    <pre class="post-code">[root@lims-1 tomcat]# yum install openssl*64 bison* readline*
+[root@lims-1 tomcat]# cd ../src/postgresql-9.5.3
+[root@lims-1 postgresql-9.5.3]# ./configure --with-openssl --prefix=/usr/local/pgsql
+[root@lims-1 postgresql-9.5.3]# make</pre>
+
+    <p class="post-p">You should see <em>"All of PostgreSQL successfully made. Ready to install."</em> at the end of the build. Then:</p>
+
+    <pre class="post-code">[root@lims-1 postgresql-9.5.3]# make install</pre>
+
+    <p class="post-p">Create the postgres user and group, initialise the database cluster, and set up logging:</p>
+
+    <pre class="post-code">[root@lims-1 pgsql]# groupadd postgres
+[root@lims-1 pgsql]# adduser postgres -g postgres -d /usr/local/pgsql
+[root@lims-1 pgsql]# passwd postgres
+[root@lims-1 pgsql]# chown -R postgres /usr/local/postgres-9.5.3
+[root@lims-1 pgsql]# su postgres
+bash-4.2$ bin/initdb -D /usr/local/pgsql/data
+bash-4.2$ exit
+[root@lims-1 pgsql]# mkdir -p /var/log/pgsql
+[root@lims-1 pgsql]# chown -R postgres:postgres /var/log/pgsql/</pre>
+
+    <p class="post-p">In <code>data/postgresql.conf</code>, uncomment and set the logging directory:</p>
+
+    <pre class="post-code">logging_collector = on
+log_directory = '/var/log/pgsql/'</pre>
+
+    <p class="post-p">Add psql to your PATH permanently:</p>
+
+    <pre class="post-code">[root@lims-1 pgsql]# vi /etc/profile.d/postgresql.sh</pre>
+
+    <pre class="post-code">export PATH=/usr/local/pgsql/bin:$PATH</pre>
+
+    <pre class="post-code">[root@lims-1 pgsql]# source /etc/profile.d/postgresql.sh</pre>
+
+    <p class="post-p">Create the systemd service file for PostgreSQL:</p>
+
+    <pre class="post-code">[root@lims-1 pgsql]# vi /etc/systemd/system/postgres.service</pre>
+
+    <pre class="post-code"># Systemd unit file for PostgreSQL
+[Unit]
+Description=PostgreSQL database server
+After=network.target
+
+[Service]
+Type=forking
+User=postgres
+Group=postgres
+OOMScoreAdjust=-1000
+Environment=PG_OOM_ADJUST_FILE=/proc/self/oom_score_adj
+Environment=PG_OOM_ADJUST_VALUE=0
+Environment=PGSTARTTIMEOUT=270
+Environment=PGDATA=/usr/local/pgsql/data
+ExecStart=/usr/local/pgsql/bin/pg_ctl start -D ${PGDATA} -s -w -t ${PGSTARTTIMEOUT}
+ExecStop=/usr/local/pgsql/bin/pg_ctl stop -D ${PGDATA} -s -m fast
+ExecReload=/usr/local/pgsql/bin/pg_ctl reload -D ${PGDATA} -s
+TimeoutSec=300
+
+[Install]
+WantedBy=multi-user.target</pre>
+
+    <pre class="post-code">[root@lims-1 pgsql]# systemctl daemon-reload
+[root@lims-1 pgsql]# systemctl enable postgres
+[root@lims-1 pgsql]# systemctl start postgres</pre>
+
+    <p class="post-p">Log into postgres and set a strong password for the superuser:</p>
+
+    <pre class="post-code">[root@lims-1 pgsql]# su postgres
+bash-4.2$ psql
+postgres=# alter user "postgres" with password 'your-strong-password-here';
+postgres=# \q</pre>
+
+    <p class="post-p">Tighten security by requiring password authentication in <code>data/pg_hba.conf</code>. Near the bottom of the file, update the entries to use <code>md5</code>:</p>
+
+    <pre class="post-code"># "local" is for Unix domain socket connections only
+local   all         postgres                              md5
+# IPv4 local connections:
+host    all         all           127.0.0.1/32            md5
+# IPv6 local connections:
+host    all         all           ::1/128                 md5</pre>
+
+    <pre class="post-code">[root@lims-1 pgsql]# systemctl restart postgres</pre>
+
+    <h2 class="post-h2">Section 5 — Installing LabKey</h2>
+
+    <p class="post-p">Move to the LabKey source directory and copy the Tomcat JAR files:</p>
+
+    <pre class="post-code">[root@lims-1 pgsql]# cd /usr/local/src/LabKey16.2-45209.14-community-bin
+[root@lims-1 LabKey16.2-45209.14-community-bin]# cp tomcat-lib/* /usr/local/tomcat/lib/</pre>
+
+    <p class="post-p">Copy the three application directories to <code>/usr/local/labkey</code>:</p>
+
+    <pre class="post-code">[root@lims-1 LabKey16.2-45209.14-community-bin]# cp -R labkeywebapp /usr/local/labkey/
+[root@lims-1 LabKey16.2-45209.14-community-bin]# cp -R modules /usr/local/labkey/
+[root@lims-1 LabKey16.2-45209.14-community-bin]# cp -R pipeline-lib /usr/local/labkey/</pre>
+
+    <p class="post-p">Set ownership so the Tomcat process can write to the required directories:</p>
+
+    <pre class="post-code">[root@lims-1 LabKey16.2-45209.14-community-bin]# chown -R tomcat.tomcat /usr/local/labkey-16.2</pre>
+
+    <div class="post-callout">
+      <span class="post-callout-tag">NOTE</span>
+      <span>This guide does not cover the <code>bin/</code> files component or SSL setup. See the <a href="https://www.labkey.org">LabKey documentation</a> for those steps if needed.</span>
+    </div>
+
+    <p class="post-p">Copy the LabKey context file into Tomcat, renaming it to <code>ROOT.xml</code> to serve LabKey at the root URL:</p>
+
+    <pre class="post-code">[root@lims-1 LabKey16.2-45209.14-community-bin]# cp labkey.xml /usr/local/tomcat/conf/Catalina/localhost/ROOT.xml</pre>
+
+    <p class="post-p">Edit <code>ROOT.xml</code> and make the following replacements:</p>
+
+    <ul class="post-ul">
+      <li><span>Replace <code>@@appDocBase@@</code> with <code>/usr/local/labkey/labkeywebapp</code></span></li>
+      <li><span>Replace <code>@@jdbcUser@@</code> and <code>@@jdbcPassword@@</code> with your postgres credentials</span></li>
+      <li><span>Replace <code>@@masterEncryptionKey@@</code> with a randomly generated 32-character ASCII string</span></li>
+      <li><span>Change the JDBC URL port from <code>8080</code> to <code>5432</code></span></li>
+    </ul>
+
+    <p class="post-p">Restart Tomcat to load the new configuration:</p>
+
+    <pre class="post-code">[root@lims-1 LabKey16.2-45209.14-community-bin]# systemctl restart tomcat</pre>
+
+    <p class="post-p">Load LabKey in your browser at <code>http://10.17.0.101:8080</code>. A setup wizard will appear and guide you through the rest of the configuration.</p>
+
+    <h2 class="post-h2">Appendix — Related links</h2>
+
+    <ul class="post-ul">
+      <li><span><a href="https://www.labkey.org/wiki/home/Documentation/page.view?name=configTomcat">LabKey: Configuring Tomcat</a></span></li>
+      <li><span><a href="https://www.labkey.org/home/Documentation/wiki-page.view?name=cpasxml">LabKey: cpas.xml reference</a></span></li>
+      <li><span><a href="https://www.labkey.org/home/Documentation/wiki-page.view?name=installPostgreSQLUnixMac">LabKey: Installing PostgreSQL on Unix/Mac</a></span></li>
+      <li><span><a href="https://www.labkey.org/home/Documentation/wiki-page.view?name=thirdPartyCode">LabKey: Third-party code</a></span></li>
+    </ul>
+
+  </div>
+
+  <nav class="post-nav" aria-label="Post navigation">
+    <a href="index.html#sec-guides" class="post-nav-link">← Internet Elephant</a>
+  </nav>
+
+</article>
+</body>
+</html>

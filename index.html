@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Internet Elephant</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,350;0,380;0,400;0,450;0,500;1,380&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #F2F4F7;
+      --rail-bg: #ECEFF3;
+      --card-bg: #E5E9EE;
+      --tint-bg: #E0E5EB;
+      --fg:      #0F1419;
+      --fg2:     #2C333D;
+      --muted:   #6A727D;
+      --faint:   #98A0AB;
+      --accent:  #1F5BFF;
+      --rule:    #D2D8DF;
+      --font-body: 'Inter Tight', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+    }
+
+    html, body { height: 100%; background: var(--bg); color: var(--fg); font-family: var(--font-body); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+
+    .site { display: grid; grid-template-columns: 220px 1fr; height: 100vh; overflow: hidden; }
+
+    .rail { background: var(--rail-bg); border-right: 1px solid var(--rule); padding: 36px 20px 28px; display: flex; flex-direction: column; gap: 36px; height: 100vh; position: sticky; top: 0; flex-shrink: 0; overflow: hidden; }
+
+    .brand { display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 500; letter-spacing: -0.01em; color: var(--fg); text-decoration: none; }
+
+    .nav { display: flex; flex-direction: column; gap: 2px; }
+
+    .nav-item { display: grid; grid-template-columns: 28px 1fr 10px; align-items: center; gap: 8px; padding: 10px 10px; font-size: 13.5px; font-weight: 450; letter-spacing: -0.005em; cursor: pointer; color: var(--fg2); border: none; outline: none; background: transparent; text-align: left; width: 100%; border-radius: 6px; transition: background 160ms ease, color 160ms ease; -webkit-appearance: none; appearance: none; box-shadow: none; text-decoration: none; }
+
+    .nav-item:hover { background: rgba(31, 91, 255, 0.07); color: #3A4048; }
+    .nav-item.active { color: var(--fg); }
+
+    .nav-num { font-size: 10px; letter-spacing: 0.07em; opacity: 0.5; font-family: var(--font-mono); color: inherit; }
+    .nav-label { color: inherit; }
+
+    .nav-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); opacity: 0; transform: translateX(-4px); transition: opacity 200ms ease, transform 200ms ease; flex-shrink: 0; }
+    .nav-item.active .nav-dot { opacity: 1; transform: translateX(0); }
+    .nav-item:hover  .nav-dot { opacity: 0.3; transform: translateX(0); }
+
+    .rail-foot { margin-top: auto; font-size: 10px; letter-spacing: 0.05em; line-height: 1.7; color: var(--faint); font-family: var(--font-mono); }
+
+    .main { overflow-y: auto; height: 100vh; scroll-behavior: smooth; }
+    .main::-webkit-scrollbar { width: 6px; }
+    .main::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
+
+    .section { padding: 72px 96px 80px; position: relative; }
+    .section::after { content: ''; display: block; position: absolute; bottom: 0; left: 48px; right: 48px; height: 1px; background: var(--rule); }
+    .section:last-child::after { display: none; }
+
+    .eyebrow { display: inline-block; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 24px; color: var(--faint); font-family: var(--font-mono); }
+
+    h1 { font-size: 42px; line-height: 1.06; font-weight: 350; letter-spacing: -0.025em; color: var(--fg); margin: 0 0 20px; max-width: 14ch; text-wrap: balance; }
+
+    .accent { color: var(--accent); }
+
+    .lede { font-size: 16px; line-height: 1.55; color: var(--fg2); font-weight: 380; max-width: 40ch; text-wrap: pretty; }
+
+    .sub { margin-top: 40px; }
+    .sub-h2 { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); margin: 0 0 16px; font-weight: 500; font-family: var(--font-mono); }
+
+    .prose p { font-size: 15px; line-height: 1.65; color: var(--fg2); margin: 0 0 14px; max-width: 54ch; font-weight: 380; }
+    .prose em { font-style: italic; opacity: 0.9; }
+
+    .bullet-list { list-style: none; padding: 0; margin: 0; }
+    .bullet-list li { display: grid; grid-template-columns: 14px 1fr; align-items: baseline; gap: 10px; font-size: 14.5px; line-height: 1.6; padding: 6px 0; color: var(--fg2); font-weight: 380; }
+
+    .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); display: inline-block; transform: translateY(-1px); flex-shrink: 0; }
+
+    .callout { margin-top: 40px; padding: 16px 18px; border: 1px solid var(--rule); border-radius: 4px; font-size: 13.5px; line-height: 1.55; display: flex; gap: 14px; align-items: flex-start; color: var(--fg2); background: var(--card-bg); max-width: 54ch; }
+    .callout-tag { font-size: 9px; letter-spacing: 0.16em; padding: 2px 7px; border-radius: 2px; flex-shrink: 0; margin-top: 3px; background: var(--fg); color: var(--bg); font-family: var(--font-mono); }
+
+    .app-card { border: 1px solid var(--rule); border-radius: 4px; display: grid; grid-template-columns: 150px 1fr; gap: 24px; padding: 22px; margin-bottom: 16px; background: var(--card-bg); transition: transform 240ms ease; }
+    .app-card:hover { transform: translateY(-2px); }
+    .app-art { display: grid; place-items: center; border-radius: 4px; background: var(--tint-bg); aspect-ratio: 1 / 1; align-self: start; }
+    .app-meta { font-size: 10px; letter-spacing: 0.08em; color: var(--faint); margin-bottom: 10px; font-family: var(--font-mono); }
+    .app-title { font-size: 24px; font-weight: 400; letter-spacing: -0.02em; color: var(--fg); margin: 0 0 10px; }
+    .app-desc { font-size: 13.5px; line-height: 1.6; color: var(--fg2); margin: 0 0 12px; font-weight: 380; }
+    .app-bullets { list-style: none; padding: 0; margin: 0 0 16px; }
+    .app-bullets li { font-size: 13px; line-height: 1.6; padding-left: 14px; position: relative; color: var(--fg2); font-weight: 380; }
+    .app-bullets li::before { content: "—"; position: absolute; left: 0; opacity: 0.45; }
+    .app-actions { display: flex; gap: 16px; align-items: center; }
+
+    .btn-primary { display: inline-block; padding: 9px 16px; border-radius: 3px; text-decoration: none; font-size: 13px; font-weight: 500; background: var(--fg); color: var(--bg); transition: transform 160ms ease, opacity 160ms ease; letter-spacing: -0.005em; }
+    .btn-primary:hover { transform: translateY(-1px); opacity: 0.88; }
+
+    .btn-link { font-size: 13px; font-weight: 500; color: var(--accent); text-decoration: none; transition: transform 180ms ease; display: inline-block; }
+    .btn-link:hover { transform: translateX(3px); }
+
+    .app-ghost { opacity: 0.55; }
+    .app-ghost:hover { transform: none; }
+    .app-ghost > div { display: flex; align-items: center; margin: 0; }
+    .app-ghost > div .app-desc { margin: 0; }
+
+    .guide-list { list-style: none; padding: 0; margin: 0; }
+    .guide-item { border-top: 1px solid var(--rule); }
+    .guide-link { display: block; padding: 20px 0 24px; text-decoration: none; position: relative; transition: padding-left 220ms ease; }
+    .guide-link:hover { padding-left: 12px; }
+    .guide-link:hover .guide-arrow { opacity: 1; transform: translateX(0); }
+    .guide-meta { font-size: 10px; letter-spacing: 0.07em; color: var(--faint); margin-bottom: 7px; font-family: var(--font-mono); display: flex; gap: 4px; align-items: center; }
+    .guide-tag { border: 1px solid var(--rule); padding: 1px 6px; border-radius: 2px; font-size: 9px; letter-spacing: 0.1em; color: var(--fg2); margin: 0 2px; }
+    .guide-title { font-size: 20px; font-weight: 400; letter-spacing: -0.02em; color: var(--fg); margin: 0 0 5px; }
+    .guide-blurb { font-size: 14px; line-height: 1.55; color: var(--fg2); margin: 0; max-width: 58ch; font-weight: 380; }
+    .guide-arrow { position: absolute; right: 0; top: 24px; font-size: 11px; letter-spacing: 0.08em; color: var(--accent); font-family: var(--font-mono); opacity: 0; transform: translateX(-4px); transition: opacity 200ms ease, transform 200ms ease; }
+
+    .mail-block { margin-top: 20px; }
+    .mail-link { font-size: 32px; font-weight: 350; letter-spacing: -0.025em; color: var(--fg); text-decoration: none; display: inline-block; padding-bottom: 3px; position: relative; }
+    .mail-link::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--accent); transform: scaleX(0.35); transform-origin: left; transition: transform 300ms cubic-bezier(.2,.7,.2,1); }
+    .mail-link:hover::after { transform: scaleX(1); }
+    .mail-note { font-size: 10.5px; letter-spacing: 0.06em; color: var(--faint); margin: 12px 0 0; font-family: var(--font-mono); }
+
+    .elsewhere { list-style: none; padding: 0; margin: 28px 0 0; }
+    .elsewhere li { font-size: 14.5px; font-weight: 380; display: grid; grid-template-columns: 90px 1fr; align-items: baseline; padding: 8px 0; color: var(--fg2); border-top: 1px solid var(--rule); }
+    .elsewhere li:last-child { border-bottom: 1px solid var(--rule); }
+    .elsewhere li span { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); font-family: var(--font-mono); }
+
+    .mobile-nav { display: none; position: sticky; top: 0; z-index: 10; background: var(--rail-bg); border-bottom: 1px solid var(--rule); padding: 0 20px; }
+    .mobile-nav-inner { display: flex; align-items: center; justify-content: space-between; height: 52px; }
+    .mobile-brand { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; letter-spacing: -0.01em; color: var(--fg); text-decoration: none; }
+    .mobile-links { display: flex; }
+    .mobile-link { padding: 6px 10px; font-size: 11px; font-weight: 500; letter-spacing: 0.04em; color: var(--muted); border: none; background: transparent; cursor: pointer; font-family: var(--font-mono); transition: color 160ms ease; -webkit-appearance: none; }
+    .mobile-link:hover { color: var(--fg2); }
+    .mobile-link.active { color: var(--accent); }
+
+    @media (max-width: 768px) {
+      .site { display: block; height: auto; overflow: visible; }
+      .rail { display: none; }
+      .mobile-nav { display: block; }
+      .main { height: auto; overflow: visible; }
+      .section { padding: 52px 28px 56px; }
+      .section::after { left: 20px; right: 20px; }
+      h1 { font-size: 32px; }
+      .lede { font-size: 15px; max-width: 100%; }
+      .app-card { grid-template-columns: 100px 1fr; gap: 16px; padding: 16px; }
+      .app-title { font-size: 20px; }
+      .mail-link { font-size: 24px; }
+    }
+
+    @media (max-width: 480px) {
+      .section { padding: 40px 20px 44px; }
+      h1 { font-size: 28px; }
+      .app-card { grid-template-columns: 1fr; }
+      .app-art { display: none; }
+      .mobile-link { font-size: 10px; padding: 6px 7px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="mobile-nav" id="mobile-nav" role="navigation" aria-label="Mobile navigation">
+  <div class="mobile-nav-inner">
+    <a class="mobile-brand" href="#sec-home" onclick="mobileJump('home');return false;">
+      <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="8" cy="12" r="6" fill="#1F5BFF"/>
+        <circle cx="17" cy="14" r="4" fill="#1F5BFF"/>
+        <rect x="15.5" y="14" width="2" height="6" rx="1" fill="#1F5BFF"/>
+      </svg>
+      Internet Elephant
+    </a>
+    <div class="mobile-links">
+      <button class="mobile-link active" data-sec="home"    onclick="mobileJump('home')">01</button>
+      <button class="mobile-link"        data-sec="apps"    onclick="mobileJump('apps')">02</button>
+      <button class="mobile-link"        data-sec="guides"  onclick="mobileJump('guides')">03</button>
+      <button class="mobile-link"        data-sec="contact" onclick="mobileJump('contact')">04</button>
+    </div>
+  </div>
+</div>
+
+<div class="site">
+  <aside class="rail" role="navigation" aria-label="Site navigation">
+    <a class="brand" href="#sec-home" onclick="jumpTo('home');return false;">
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="8" cy="12" r="6" fill="#1F5BFF"/>
+        <circle cx="17" cy="14" r="4" fill="#1F5BFF"/>
+        <rect x="15.5" y="14" width="2" height="6" rx="1" fill="#1F5BFF"/>
+      </svg>
+      Internet Elephant
+    </a>
+    <nav>
+      <div class="nav" id="nav">
+        <button class="nav-item active" data-sec="home"    onclick="jumpTo('home')">
+          <span class="nav-num">01</span><span class="nav-label">Index</span><span class="nav-dot" aria-hidden="true"></span>
+        </button>
+        <button class="nav-item" data-sec="apps"    onclick="jumpTo('apps')">
+          <span class="nav-num">02</span><span class="nav-label">Apps</span><span class="nav-dot" aria-hidden="true"></span>
+        </button>
+        <button class="nav-item" data-sec="guides"  onclick="jumpTo('guides')">
+          <span class="nav-num">03</span><span class="nav-label">Guides</span><span class="nav-dot" aria-hidden="true"></span>
+        </button>
+        <button class="nav-item" data-sec="contact" onclick="jumpTo('contact')">
+          <span class="nav-num">04</span><span class="nav-label">Contact</span><span class="nav-dot" aria-hidden="true"></span>
+        </button>
+      </div>
+    </nav>
+    <div class="rail-foot">since 1998<br>v 26.04</div>
+  </aside>
+
+  <main class="main" id="main" role="main">
+
+    <section id="sec-home" class="section" aria-labelledby="h-home">
+      <span class="eyebrow">01 — Index</span>
+      <h1 id="h-home">Friendly, experienced IT support<span class="accent">.</span></h1>
+      <p class="lede">Internet Elephant provides hands-on help for Linux, Mac, Windows, the web, and anything in the office. From fixing a suddenly broken machine to designing your infrastructure from the ground up.</p>
+      <div class="sub">
+        <h2 class="sub-h2">About</h2>
+        <div class="prose">
+          <p>Twenty-five years of practice across home users to small businesses, from hospitals to universities, and Fortune&nbsp;50 enterprises. The work spans whatever the day asks. A stuck printer, a quiet server room, a fresh deploy, a tangled network closet, or a long conversation about what the team actually needs.</p>
+          <p>We meet you where you are, whether that's <em>"please just make it work"</em> or <em>"walk me through every layer."</em></p>
+        </div>
+      </div>
+      <div class="sub">
+        <h2 class="sub-h2">What we do</h2>
+        <ul class="bullet-list">
+          <li><span class="dot"></span>Workstation &amp; server triage: Linux, macOS, Windows</li>
+          <li><span class="dot"></span>Office networks and Wi-Fi, file storage and backups</li>
+          <li><span class="dot"></span>Web hosting, DNS, security certificates, small deploys</li>
+          <li><span class="dot"></span>Quiet long-term sysadmin for teams that need IT on call</li>
+        </ul>
+      </div>
+      <aside class="callout" role="note">
+        <span class="callout-tag">NOTE</span>
+        <span>Internet Elephant is not currently accepting new clients. Check back for updates.</span>
+      </aside>
+    </section>
+
+    <section id="sec-apps" class="section" aria-labelledby="h-apps">
+      <span class="eyebrow">02 — Apps</span>
+      <h1 id="h-apps">Small, personal software<span class="accent">.</span></h1>
+      <p class="lede">Things we make in between the day job. Built to respect the user, their files, and their privacy.</p>
+      <div class="sub">
+        <article class="app-card">
+          <div class="app-art" aria-hidden="true">
+            <svg viewBox="0 0 100 100" width="72" height="72">
+              <circle cx="50" cy="50" r="36" fill="none" stroke="#1F5BFF" stroke-width="1.5"/>
+              <circle cx="50" cy="50" r="6" fill="#1F5BFF"/>
+              <circle cx="50" cy="14" r="3" fill="#1F5BFF"/>
+              <line x1="50" y1="17" x2="50" y2="44" stroke="#1F5BFF" stroke-width="0.8" opacity="0.4"/>
+            </svg>
+          </div>
+          <div>
+            <div class="app-meta">macOS 26+ · v 1.0 · 12.7 mb</div>
+            <h3 class="app-title">Earthling</h3>
+            <p class="app-desc">A private, minimal travel journal for macOS. Built on a simple idea: your journal belongs to you. Not to a platform, not to a subscription, not to anyone else.</p>
+            <ul class="app-bullets">
+              <li>Entries stored as plain Markdown in your local sandbox folder</li>
+              <li>No accounts. No telemetry. No ads.</li>
+              <li>Yours, on disk, forever, with or without us</li>
+            </ul>
+            <div class="app-actions">
+              <a href="earthling.html" class="btn-link">Read more →</a>
+            </div>
+          </div>
+        </article>
+        <article class="app-card app-ghost" style="grid-template-columns:1fr;">
+          <div>
+            <p class="app-desc">The next app is in the workshop. We'll write here when it's ready to bring out.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="sec-guides" class="section" aria-labelledby="h-guides">
+      <span class="eyebrow">03 — Guides</span>
+      <h1 id="h-guides">Notes from the workshop<span class="accent">.</span></h1>
+      <p class="lede">Configurations, recipes, and the long-form answers we keep emailing to friends. Written so we can find them again next year.</p>
+      <div class="sub">
+        <ol class="guide-list">
+          <li class="guide-item">
+            <a href="guide-mac-wifi-hotspot.html" class="guide-link">
+              <div class="guide-meta">2022 · 09 · 24<span class="guide-tag">networking</span></div>
+              <h3 class="guide-title">Creating a New Wi-Fi Network on a Mac</h3>
+              <p class="guide-blurb">A walkthrough of setting up a fresh WiFi network for those with internet but without a dedicated WiFi router built in. Make your own to power your WiFi phones and device.</p>
+              <span class="guide-arrow" aria-hidden="true">read →</span>
+            </a>
+          </li>
+          <li class="guide-item">
+            <a href="guide-labkey-on-centos.html" class="guide-link">
+              <div class="guide-meta">2018 · 02 · 18<span class="guide-tag">sysadmin</span></div>
+              <h3 class="guide-title">Installing LabKey on CentOS 7</h3>
+              <p class="guide-blurb">Step-by-step for a stable and secure LabKey install on CentOS 7 box.</p>
+              <span class="guide-arrow" aria-hidden="true">read →</span>
+            </a>
+          </li>
+
+
+<!--     <li class="guide-item">
+            <a href="template.html#" class="guide-link">
+              <div class="guide-meta">20xx · xx · xx<span class="guide-tag">catagory</span></div>
+              <h3 class="guide-title">Guide Title</h3>
+              <p class="guide-blurb">Guide blurb here.</p>
+              <span class="guide-arrow" aria-hidden="true">read →</span>
+            </a>
+          </li>
+-->
+
+        </ol>
+      </div>
+    </section>
+
+    <section id="sec-contact" class="section" aria-labelledby="h-contact">
+      <span class="eyebrow">04 — Contact</span>
+      <h1 id="h-contact">Say hello<span class="accent">.</span></h1>
+      <p class="lede">We're not currently accepting new clients, but we always read the mail. Questions about the apps and guides are very welcome.</p>
+      <div class="mail-block">
+        <a href="#" class="mail-link" id="mail-link" onclick="revealMail(event)">click to reveal email</a>
+        <p class="mail-note" id="mail-note">Hidden from spambots. Humans and Autobots welcome.</p>
+      </div>
+      <ul class="elsewhere" aria-label="Other places to find us">
+        <li><span>github</span><a href=https://github.com/internet-elephant?tab=repositories>@internet-elephant</a></li>
+      </ul>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  var SECS = ['home','apps','guides','contact'];
+  var mainEl = document.getElementById('main');
+
+  function getActiveSec() {
+    var bot = mainEl.scrollTop + mainEl.clientHeight;
+    if (bot >= mainEl.scrollHeight - 32) return 'contact';
+    var cur = 'home';
+    SECS.forEach(function(id) {
+      var el = document.getElementById('sec-' + id);
+      if (el && mainEl.scrollTop >= el.offsetTop - 100) cur = id;
+    });
+    return cur;
+  }
+
+  function setActive(id) {
+    document.querySelectorAll('.nav-item, .mobile-link').forEach(function(b) {
+      b.classList.toggle('active', b.dataset.sec === id);
+    });
+  }
+
+  mainEl.addEventListener('scroll', function() { setActive(getActiveSec()); }, { passive: true });
+
+  window.addEventListener('scroll', function() {
+    var bot = window.scrollY + window.innerHeight;
+    if (bot >= document.body.scrollHeight - 32) { setActive('contact'); return; }
+    var cur = 'home';
+    SECS.forEach(function(id) {
+      var el = document.getElementById('sec-' + id);
+      if (el && window.scrollY >= el.getBoundingClientRect().top + window.scrollY - 100) cur = id;
+    });
+    setActive(cur);
+  }, { passive: true });
+
+  function jumpTo(id) {
+    var el = document.getElementById('sec-' + id);
+    if (el) mainEl.scrollTo({ top: el.offsetTop, behavior: 'smooth' });
+    setActive(id);
+  }
+
+  function mobileJump(id) {
+    var el = document.getElementById('sec-' + id);
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 60, behavior: 'smooth' });
+    setActive(id);
+  }
+
+  !function() {
+    var d=[70,65,73,64,111,70,65,91,74,93,65,74,91,74,67,74,95,71,78,65,91,1,76,64,66],k=47;
+    window.revealMail = function(e) {
+      e.preventDefault();
+      var a=d.map(function(c){return String.fromCharCode(c^k);}).join('');
+      var l=document.getElementById('mail-link');
+      l.textContent=a;
+      l.href='mailto:'+a+'?subject=Ideas%20and%20Solutions%20with%20Internet%20Elephant';
+      l.onclick=null;
+      var n=document.getElementById('mail-note');
+      if(n) n.textContent='Click to open a new email.';
+    };
+  }();
+</script>
+</body>
+</html>

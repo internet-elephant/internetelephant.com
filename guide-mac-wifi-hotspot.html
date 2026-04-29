@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Creating a New Wi-Fi Network on a Mac — Internet Elephant</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,350;0,380;0,400;0,450;0,500;1,380&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #F2F4F7; --rail-bg: #ECEFF3; --card-bg: #E5E9EE; --tint-bg: #E0E5EB;
+      --fg: #0F1419; --fg2: #2C333D; --muted: #6A727D; --faint: #98A0AB;
+      --accent: #1F5BFF; --rule: #D2D8DF;
+      --font-body: 'Inter Tight', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--fg); font-family: var(--font-body); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+    .topbar { position: sticky; top: 0; z-index: 100; background: rgba(236,239,243,0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--rule); padding: 0 48px; display: flex; align-items: center; justify-content: space-between; height: 52px; }
+    .topbar-back { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 450; color: var(--muted); text-decoration: none; letter-spacing: -0.005em; transition: color 160ms ease; }
+    .topbar-back:hover { color: var(--fg2); }
+    .topbar-right { font-size: 11px; letter-spacing: 0.05em; color: var(--faint); font-family: var(--font-mono); }
+    .article { max-width: 860px; margin: 0 auto; padding: 72px 48px 120px; }
+    .post-eyebrow { display: inline-block; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 20px; color: var(--faint); font-family: var(--font-mono); }
+    .post-title { font-size: 36px; line-height: 1.07; font-weight: 350; letter-spacing: -0.025em; color: var(--fg); margin: 0 0 18px; }
+    .post-meta { font-size: 10px; letter-spacing: 0.07em; color: var(--faint); font-family: var(--font-mono); display: flex; gap: 6px; align-items: center; margin-bottom: 28px; }
+    .post-tag { border: 1px solid var(--rule); padding: 1px 6px; border-radius: 2px; font-size: 9px; letter-spacing: 0.1em; color: var(--fg2); margin: 0 2px; }
+    .post-lede { font-size: 16px; line-height: 1.6; color: var(--fg2); font-weight: 380; padding-bottom: 36px; border-bottom: 1px solid var(--rule); text-wrap: pretty; }
+    .post-body { margin-top: 40px; }
+    .post-h2 { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg2); font-family: var(--font-mono); margin: 64px 0 20px; padding-left: 12px; border-left: 2px solid var(--accent); }
+    .post-h2:first-child { margin-top: 0; }
+    .post-p { font-size: 15px; line-height: 1.7; color: var(--fg2); font-weight: 380; margin: 0 0 16px; text-wrap: pretty; }
+    .post-p em { font-style: italic; opacity: 0.9; }
+    .post-p strong { font-weight: 500; color: var(--fg); }
+    .post-p code { font-family: var(--font-mono); font-size: 12.5px; background: var(--card-bg); padding: 1px 5px; border-radius: 2px; color: var(--fg2); }
+    .post-p a { color: var(--accent); text-decoration: none; }
+    .post-p a:hover { text-decoration: underline; }
+    .post-code { background: var(--card-bg); border-radius: 4px; padding: 16px 20px; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.7; color: var(--fg2); margin: 0 0 20px; overflow-x: auto; border-left: 2px solid var(--accent); white-space: pre; }
+    .post-callout { margin: 24px 0; padding: 16px 18px; border: 1px solid var(--rule); border-radius: 4px; font-size: 13.5px; line-height: 1.55; display: flex; gap: 14px; align-items: flex-start; color: var(--fg2); background: var(--card-bg); }
+    .post-callout-tag { font-size: 9px; letter-spacing: 0.16em; padding: 2px 7px; border-radius: 2px; flex-shrink: 0; margin-top: 2px; background: var(--fg); color: var(--bg); font-family: var(--font-mono); }
+    .post-ul { list-style: none; padding: 0; margin: 0 0 20px; }
+    .post-ul li { position: relative; padding-left: 18px; font-size: 15px; line-height: 1.7; color: var(--fg2); font-weight: 380; padding-bottom: 6px; }
+    .post-ul li::before { content: ''; position: absolute; left: 0; top: 0.62em; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+    .post-nav { margin-top: 80px; padding-top: 28px; border-top: 1px solid var(--rule); }
+    .post-nav-link { font-size: 13px; font-weight: 450; color: var(--muted); text-decoration: none; letter-spacing: -0.005em; transition: color 160ms ease, transform 200ms ease; display: inline-block; }
+    .post-nav-link:hover { color: var(--fg2); transform: translateX(-3px); }
+    @media (max-width: 768px) { .topbar { padding: 0 20px; } .article { padding: 48px 24px 80px; } .post-title { font-size: 28px; } .post-lede { font-size: 15px; } }
+    @media (max-width: 480px) { .article { padding: 36px 18px 64px; } .post-title { font-size: 24px; } .topbar-right { display: none; } }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="topbar-back" href="index.html">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+    Internet Elephant
+  </a>
+  <span class="topbar-right">Guides</span>
+</header>
+
+<article class="article">
+
+  <span class="post-eyebrow">03 — Guides</span>
+  <h1 class="post-title">Creating a New Wi-Fi Network on a Mac</h1>
+  <div class="post-meta">
+    2022 · 09 · 24
+    <span class="post-tag">networking</span>
+  </div>
+  <p class="post-lede">
+    Setup a temporary Wi-Fi hotspot from a Mac with an ethernet connection, allowing you to connect your handheld devices for updates and more.
+  </p>
+
+  <div class="post-body">
+
+    <h2 class="post-h2">The scenario</h2>
+
+    <p class="post-p">A friend needed to update their iPhone but did not have, or otherwise need, Wi-Fi. Fortunately they had an Ethernet connection into their MacBook, so we used it to create a temporary Wi-Fi network, connect their phone, and run the update.</p>
+
+    <div class="post-callout">
+      <span class="post-callout-tag">NOTE</span>
+      <span>The following instructions were created on a MacBook Pro running macOS Monterey (12.6).</span>
+    </div>
+
+    <h2 class="post-h2">Prerequisites</h2>
+
+    <ul class="post-ul">
+      <li>A Mac of any type, plugged into the network via an Ethernet cable.</li>
+      <li>The Mac should not currently be connected to another Wi-Fi source.</li>
+    </ul>
+
+    <div class="post-callout">
+      <span class="post-callout-tag">CAUTION</span>
+      <span>This should not be done in an office environment, and is intended for personal or home use only.</span>
+    </div>
+
+    <h2 class="post-h2">Open System Preferences</h2>
+
+    <p class="post-p">Open <strong>System Preferences</strong> by clicking the Apple logo in the upper left-hand corner of the screen and selecting it from the menu. This is where all of the configuration happens.</p>
+
+    <img src="screenshots-guides/mac-wifi-01.png" alt="System Preferences window" style="width:600px;max-width:100%;border-radius:4px;display:block;margin:20px 0;">
+
+    <h2 class="post-h2">Check Wi-Fi status in the menu bar</h2>
+
+    <p class="post-p">Click <strong>Network</strong> in System Preferences, then ensure <em>Show Wi-Fi status in Menu Bar</em> is checked.</p>
+
+    <img src="screenshots-guides/mac-wifi-optional-0.png" alt="Network preferences showing Show Wi-Fi status in Menu Bar option" style="width:100%;border-radius:4px;display:block;margin:20px 0;">
+
+    <img src="screenshots-guides/mac-wifi-optional-1.png" alt="Turn Wi-Fi On button" style="width:100%;border-radius:4px;display:block;margin:20px 0;">
+    
+    <div class="post-callout">
+      <span class="post-callout-tag">NOTE</span>
+      <span>Note: The above image shows the Wi-Fi with <i>Status = Off</i>. If you see the same, click the <b>Turn Wi-Fi On</b> button on this screen before continuing.</span>
+    </div>
+
+    <h2 class="post-h2">Open Sharing preferences</h2>
+
+    <p class="post-p">Click the back button to return to the main System Preferences window, then select <strong>Sharing</strong>.</p>
+
+    <img src="screenshots-guides/mac-wifi-02.jpg" alt="System Preferences with Sharing highlighted" style="width:100%;border-radius:4px;display:block;margin:20px 0;">
+
+    <p class="post-p">You may need to unlock the window to make changes. Click the lock icon and enter your username and password. The account must have administrator rights — if you have only one account on this Mac, it will work.</p>
+
+    <img src="screenshots-guides/mac-wifi-03.png" alt="Sharing preferences pane locked" style="width:100%;border-radius:4px;display:block;margin:20px 0;">
+
+    <img src="screenshots-guides/mac-wifi-04.png" alt="Internet Sharing configuration showing Ethernet source and Wi-Fi checked" style="width:100%;border-radius:4px;display:block;margin:20px 0;">
+
+    <h2 class="post-h2">Configure Internet Sharing</h2>
+
+    <p class="post-p">Now unlocked, let’s select <strong>Internet Sharing</strong> to get started. On this page, ensure the <strong>Share your connection from:</strong> selection from the drop down contains something about <strong>Ethernet</strong>.</p>
+
+
+    <img src="screenshots-guides/mac-wifi-05.png" alt="Wi-Fi Options dialog with network name, channel and security fields" style="width:100%;border-radius:4px;display:block;margin:20px 0;">
+
+    <p class="post-p">Next, click the box next to Wi-Fi to select it, and then click the <strong>Wi-Fi Options</strong> button.</p>
+
+    <img src="screenshots-guides/mac-wifi-07.png" alt="Internet Sharing checkbox in the service list" style="width:100%;border-radius:4px;display:block;margin:20px 0;">
+
+    <h2 class="post-h2">Set the network name and password</h2>
+
+    <p class="post-p">In the Wi-Fi Options window that pops up:</p>
+
+    <ul class="post-ul">
+      <li><span><span>Create a <strong>Network Name</strong> you will recognise later.</span></span></li>
+      <li><span><span>Select a <strong>Channel</strong>.</span></span></li>
+      <li><span><span>Ensure <strong>Security</strong> is set to <em>WPA2/WPA3 Personal</em>.</span></span></li>
+      <li><span>Set a strong password — a short passphrase of around 15 characters is a great practice.</span></li>
+    </ul>
+
+    <img src="screenshots-guides/mac-wifi-08.png" alt="Sharing window showing Internet Sharing enabled with green indicator" style="width:100%;border-radius:4px;display:block;margin:20px 0;">
+
+    <p class="post-p">Click <strong>OK</strong> when complete.</p>
+
+    <h2 class="post-h2">Turn on Internet Sharing</h2>
+
+    <p class="post-p">Back in the Sharing window, notice the Wi-Fi symbol in the menu bar is still greyed out, and the window still shows <em>Internet Sharing: Off</em>.</p>
+
+    <img src="screenshots-guides/mac-wifi-09.png" alt="iPhone joining the new Wi-Fi network" style="width:100%;border-radius:4px;display:block;margin:20px 0;">
+
+    <p class="post-p">To turn the hotspot on, check the box next to <strong>Internet Sharing</strong>. When the pop-up warning appears, click <strong>Start</strong>.</p>
+
+    <img src="screenshots-guides/mac-wifi-10.png" alt="Internet Sharing turned off in the service list" style="width:100%;border-radius:4px;display:block;margin:20px 0;">
+
+    <h2 class="post-h2">Confirm it's working</h2>
+
+    <p class="post-p">You should now see three signs that your Wi-Fi hotspot is live:</p>
+
+    <ul class="post-ul">
+      <li><span>The service list shows <em>Internet Sharing</em> with a check mark.</span></li>
+      <li><span>A green light appears and the status reads <em>Internet Sharing: On</em>.</span></li>
+      <li>The Wi-Fi indicator in the menu bar shows a small arrow inside it, indicating this Mac is broadcasting Wi-Fi.</li>
+    </ul>
+
+    <img src="screenshots-guides/mac-wifi-11.png" alt="Sharing preferences with Internet Sharing unchecked" style="width:100%;border-radius:4px;display:block;margin:20px 0;">
+
+    <h2 class="post-h2">Connect your device</h2>
+
+    <p class="post-p">Open Settings on your iPhone, iPad, or other device and join the network you just created using the name and password set in the Wi-Fi Options step above.</p>
+
+
+    <h2 class="post-h2">Turn it off when done</h2>
+
+    <p class="post-p">One final step — be sure to disable the hotspot when you're done to best protect your Mac. Uncheck the box next to <strong>Internet Sharing</strong> in the service list.</p>
+
+
+    <p class="post-p">The Sharing window will confirm Internet Sharing is now off, and the green indicator will disappear.</p>
+
+    <p class="post-p">Don't worry about losing any settings — your network name, password, and configuration are saved. Next time you need the hotspot, simply check the box again to turn it back on. The Wi-Fi indicator in the menu bar will return to its normal state.</p>
+
+    <img src="screenshots-guides/mac-wifi-12.png" alt="Final state with Wi-Fi indicator returned to normal" style="width:100%;border-radius:4px;display:block;margin:20px 0;">
+
+  </div>
+
+  <nav class="post-nav" aria-label="Post navigation">
+    <a href="index.html#sec-guides" class="post-nav-link">← Internet Elephant</a>
+  </nav>
+
+</article>
+</body>
+</html>

@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Earthling — A Private Travel Journal for macOS</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,350;0,380;0,400;0,450;0,500;1,380&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #F2F4F7;
+      --rail-bg:   #ECEFF3;
+      --card-bg:   #E5E9EE;
+      --tint-bg:   #E0E5EB;
+      --fg:        #0F1419;
+      --fg2:       #2C333D;
+      --muted:     #6A727D;
+      --faint:     #98A0AB;
+      --accent:    #1F5BFF;
+      --rule:      #D2D8DF;
+      --font-body: 'Inter Tight', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--fg); font-family: var(--font-body); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow-x: hidden; }
+
+    /* ── top bar ───────────────────────────────────── */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(236,239,243,0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--rule);
+      padding: 0 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 52px;
+    }
+
+    .topbar-back {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 13px; font-weight: 450; color: var(--muted);
+      text-decoration: none; letter-spacing: -0.005em;
+      transition: color 160ms ease;
+    }
+    .topbar-back:hover { color: var(--fg2); }
+
+    .topbar-links { display: flex; gap: 4px; }
+    .topbar-link {
+      font-size: 12.5px; font-weight: 450; color: var(--muted);
+      text-decoration: none; padding: 5px 10px; border-radius: 4px;
+      letter-spacing: -0.005em;
+      transition: color 160ms ease, background 160ms ease;
+    }
+    .topbar-link:hover { color: var(--fg2); background: rgba(15,20,25,0.05); }
+
+    .topbar-gh {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 7px 14px; border-radius: 3px; text-decoration: none;
+      font-size: 12.5px; font-weight: 500;
+      background: var(--fg); color: var(--bg); letter-spacing: -0.005em;
+      transition: opacity 160ms ease, transform 160ms ease;
+    }
+    .topbar-gh:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    /* ── sections ──────────────────────────────────── */
+    .section { padding: 96px 48px; max-width: 960px; margin: 0 auto; }
+    .section-full { padding: 96px 48px; }
+
+    .eyebrow {
+      display: inline-block; font-size: 10px; letter-spacing: 0.14em;
+      text-transform: uppercase; margin-bottom: 20px;
+      color: var(--faint); font-family: var(--font-mono);
+    }
+
+    .sec-title {
+      font-size: 40px; line-height: 1.06; font-weight: 350;
+      letter-spacing: -0.025em; color: var(--fg); margin: 0 0 16px;
+      text-wrap: balance;
+    }
+
+    .sec-title em { font-style: italic; color: var(--accent); font-weight: 350; }
+
+    .sec-desc {
+      font-size: 16px; line-height: 1.6; color: var(--fg2);
+      font-weight: 380; max-width: 52ch; text-wrap: pretty; margin: 0;
+    }
+
+    /* ── hero ──────────────────────────────────────── */
+    .hero { padding: 80px 48px 0; max-width: 960px; margin: 0 auto; }
+
+    .hero-top {
+      display: grid; grid-template-columns: 72px 1fr; gap: 28px;
+      align-items: start; margin-bottom: 48px;
+    }
+
+    .hero-icon {
+      border-radius: 16px; overflow: hidden; flex-shrink: 0;
+      line-height: 0;
+    }
+
+    .hero-eyebrow {
+      display: inline-block; font-size: 10px; letter-spacing: 0.14em;
+      text-transform: uppercase; margin-bottom: 14px;
+      color: var(--faint); font-family: var(--font-mono);
+    }
+
+    .hero-title {
+      font-size: 56px; line-height: 1.02; font-weight: 350;
+      letter-spacing: -0.03em; color: var(--fg); margin: 0 0 16px;
+    }
+
+    .hero-title .accent { color: var(--accent); }
+
+    .hero-sub {
+      font-size: 17px; line-height: 1.55; color: var(--fg2);
+      font-weight: 380; max-width: 46ch; text-wrap: pretty; margin: 0 0 28px;
+    }
+
+    .hero-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; }
+
+    .btn-gh {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 18px; border-radius: 3px; text-decoration: none;
+      font-size: 13.5px; font-weight: 500; background: var(--fg); color: var(--bg);
+      letter-spacing: -0.005em; transition: transform 160ms ease, opacity 160ms ease;
+    }
+    .btn-gh:hover { transform: translateY(-1px); opacity: 0.88; }
+
+    .btn-outline {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 10px 18px; border-radius: 3px; text-decoration: none;
+      font-size: 13.5px; font-weight: 450; color: var(--fg2);
+      border: 1px solid var(--rule); letter-spacing: -0.005em;
+      transition: border-color 200ms ease, color 200ms ease;
+    }
+    .btn-outline:hover { border-color: var(--muted); color: var(--fg); }
+
+    .hero-meta {
+      font-size: 11px; letter-spacing: 0.06em; color: var(--faint);
+      font-family: var(--font-mono); display: flex; gap: 0; flex-wrap: wrap;
+    }
+    .hero-meta span { margin-right: 18px; }
+    .hero-meta span::before { content: "· "; margin-right: 2px; color: var(--rule); }
+    .hero-meta span:first-child::before { content: ""; margin-right: 0; }
+
+    /* ── app screenshot ─────────────────────────────── */
+    .hero-shot-wrap {
+      margin-top: 52px;
+      line-height: 0;
+    }
+
+    .hero-shot-img {
+      width: 100%; display: block;
+      border-radius: 8px 8px 0 0;
+    }
+
+    /* ── rule ──────────────────────────────────────── */
+    .section-rule { border: none; border-top: 1px solid var(--rule); margin: 0 48px; }
+
+    /* ── three pillars ──────────────────────────────── */
+    .pillars {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1px; background: var(--rule);
+      border: 1px solid var(--rule); border-radius: 4px; overflow: hidden;
+      margin-top: 48px;
+    }
+
+    .pillar { background: var(--card-bg); padding: 32px 30px 36px; }
+
+    .pillar-icon { font-size: 22px; margin-bottom: 14px; }
+
+    .pillar-title {
+      font-size: 15px; font-weight: 500; color: var(--fg);
+      letter-spacing: -0.01em; margin: 0 0 10px;
+    }
+
+    .pillar-text {
+      font-size: 13.5px; line-height: 1.65; color: var(--fg2); font-weight: 380;
+    }
+
+    /* ── themes browser ─────────────────────────────── */
+    .themes-wrap { max-width: 960px; margin: 0 auto; padding: 0 48px; }
+
+    .swatches {
+      display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px;
+    }
+
+    .swatch {
+      width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+    }
+    .swatch:hover { transform: scale(1.12); }
+    .swatch.active {
+      border-color: rgba(15,20,25,0.4); transform: scale(1.1);
+      box-shadow: 0 0 0 3px var(--bg), 0 0 0 4px rgba(15,20,25,0.25);
+    }
+
+    .theme-label {
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em;
+      color: var(--faint); margin-bottom: 28px; min-height: 18px;
+      text-transform: uppercase;
+    }
+
+    /* theme screenshot viewer */
+    .theme-img-wrap {
+      line-height: 0; width: 100%;
+    }
+
+    .theme-img {
+      width: 100%; height: auto; display: block;
+      border-radius: 8px 8px 0 0;
+      transition: opacity 180ms ease;
+    }
+
+    .theme-img.fading { opacity: 0; }
+
+    /* ── 2x4 feature grid ───────────────────────────── */
+    .feature-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 1px; background: var(--rule);
+      border: 1px solid var(--rule); border-radius: 4px; overflow: hidden;
+      margin-top: 48px;
+    }
+
+    .feature {
+      background: var(--card-bg); padding: 32px 34px 36px;
+    }
+
+    .feature-icon {
+      width: 26px; height: 26px; margin-bottom: 14px; color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .feature-title {
+      font-size: 15px; font-weight: 500; color: var(--fg);
+      letter-spacing: -0.01em; margin: 0 0 9px;
+    }
+
+    .feature-body {
+      font-size: 13.5px; line-height: 1.65; color: var(--fg2); font-weight: 380;
+    }
+
+    /* ── open source ────────────────────────────────── */
+    .opensource {
+      background: #0F1419; color: #F2F4F7;
+      padding: 96px 48px; text-align: center;
+    }
+
+    .opensource .eyebrow { color: #4A5260; }
+    .opensource .sec-title { color: #F2F4F7; }
+    .opensource .sec-desc  { color: #6A727D; max-width: 80ch; margin: 0 auto 48px; }
+
+    .os-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 56px; }
+
+    .btn-os-primary {
+      display: inline-block; padding: 11px 22px; border-radius: 3px;
+      font-size: 13.5px; font-weight: 500; text-decoration: none;
+      background: #F2F4F7; color: #0F1419; letter-spacing: -0.005em;
+      transition: opacity 160ms ease;
+    }
+    .btn-os-primary:hover { opacity: 0.88; }
+
+    .btn-os-ghost {
+      display: inline-block; padding: 11px 22px; border-radius: 3px;
+      font-size: 13.5px; font-weight: 450; text-decoration: none;
+      color: #6A727D; border: 1px solid #2C333D; letter-spacing: -0.005em;
+      transition: border-color 200ms ease, color 200ms ease;
+    }
+    .btn-os-ghost:hover { border-color: #6A727D; color: #D2D8DF; }
+
+    .os-note {
+      display: inline-block; font-size: 11px; letter-spacing: 0.06em;
+      color: #4A5260; font-family: var(--font-mono); text-align: left;
+      border-top: 1px solid #2C333D; padding-top: 32px; max-width: 52ch;
+      line-height: 1.7;
+    }
+
+    /* ── acknowledgments ────────────────────────────── */
+    .acks {
+      background: #0A0C0F; border-top: 1px solid #1E2530;
+      padding: 56px 48px; text-align: center;
+    }
+
+    .acks-label {
+      font-size: 10px; font-weight: 500; letter-spacing: 0.16em;
+      text-transform: uppercase; color: #4A5260; margin-bottom: 24px;
+      font-family: var(--font-mono);
+    }
+
+    .acks-pills { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+    .ack-pill {
+      font-size: 12.5px; font-weight: 380; color: #6A727D;
+      text-decoration: none; border: 1px solid #1E2530;
+      padding: 9px 18px; border-radius: 3px;
+      transition: color 200ms ease, border-color 200ms ease;
+    }
+    .ack-pill:hover { color: #D2D8DF; border-color: #4A5260; }
+
+    /* ── footer ─────────────────────────────────────── */
+    footer {
+      background: #0A0C0F; border-top: 1px solid #1E2530;
+      padding: 28px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .footer-left {
+      font-size: 13px; font-weight: 400; color: #6A727D;
+      letter-spacing: -0.01em;
+    }
+
+    .footer-right {
+      font-size: 11px; letter-spacing: 0.04em; color: #6A727D;
+      font-family: var(--font-mono);
+    }
+
+    /* ── scroll reveal ──────────────────────────────── */
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── responsive ─────────────────────────────────── */
+    @media (max-width: 900px) {
+      .topbar { padding: 0 24px; }
+      .topbar-links { display: none; }
+      .section, .section-full { padding: 72px 24px; }
+      .hero { padding: 56px 24px 0; }
+      .themes-wrap { padding: 0 24px; }
+      .section-rule { margin: 0 24px; }
+      .pillars { grid-template-columns: 1fr; }
+      .hero-title { font-size: 40px; }
+      .sec-title { font-size: 30px; }
+    }
+
+    @media (max-width: 600px) {
+      .topbar { padding: 0 16px; }
+      .hero { padding: 40px 16px 0; }
+      .section { padding: 56px 16px; }
+      .themes-wrap { padding: 0 16px; }
+      .section-rule { margin: 0 16px; }
+      .hero-top { grid-template-columns: 48px 1fr; gap: 18px; }
+      .hero-title { font-size: 32px; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .mock-body { grid-template-columns: 140px 1fr; }
+      footer { flex-direction: column; gap: 6px; text-align: center; padding: 24px 16px; }
+      .acks { padding: 48px 16px; }
+      .opensource { padding: 72px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- top bar -->
+<header class="topbar">
+  <a class="topbar-back" href="index.html">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    Internet Elephant
+  </a>
+  <nav class="topbar-links" aria-label="Page sections">
+    <a class="topbar-link" href="#themes">Themes</a>
+    <a class="topbar-link" href="#features">Features</a>
+    <a class="topbar-link" href="#source">Open Source</a>
+  </nav>
+  <a href="https://github.com/internet-elephant/earthling" class="topbar-gh" target="_blank" rel="noopener">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+    </svg>
+    GitHub →
+  </a>
+</header>
+
+<!-- hero -->
+<div class="hero reveal">
+  <div class="hero-top">
+    <div class="hero-icon">
+      <!-- point to any exported app icon PNG from your repo, e.g. AppIcon-512.png -->
+      <img src="appicon-512.png" alt="Earthling app icon" width="72" height="72" style="display:block;border-radius:16px;width:100%;height:auto;max-width:72px;">
+    </div>
+    <div>
+      <span class="hero-eyebrow">macOS 26+ · SwiftUI · MIT license</span>
+      <h1 class="hero-title">Earthling<span class="accent">.</span></h1>
+      <p class="hero-sub">A private, minimal travel journal for macOS. No accounts, no subscriptions, no cloud services you don't control. Just you and your words.</p>
+      <div class="hero-actions">
+        <a href="https://github.com/internet-elephant/earthling" class="btn-gh" target="_blank" rel="noopener">
+          Get the Source
+        </a>
+        <a href="https://github.com/internet-elephant/earthling/blob/main/README.md" class="btn-outline" target="_blank" rel="noopener">Read the README</a>
+        <a href="https://github.com/internet-elephant/earthling/blob/main/docs/DOCS.md" class="btn-outline" target="_blank" rel="noopener">Documentation</a>
+      </div>
+      <div class="hero-meta">
+        <span>macOS Tahoma or later</span>
+        <span>Apple Silicon</span>
+        <span>Build with a free Apple ID</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- hero screenshot -->
+  <div class="hero-shot-wrap">
+    <img src="screenshots/hero.webp" alt="Earthling — entry view" class="hero-shot-img">
+  </div>
+</div>
+
+<!-- philosophy -->
+<section class="section reveal" aria-labelledby="philosophy-title">
+  <span class="eyebrow">Design philosophy</span>
+  <h2 class="sec-title" id="philosophy-title">Designed around<br><em>your freedom.</em></h2>
+  <p class="sec-desc">No accounts. No subscriptions. Nothing you don't control. Your journal is a folder of plain text files, readable by any app on any device, forever.</p>
+  <div class="pillars">
+    <div class="pillar">
+      <div class="pillar-icon">🔒</div>
+      <h3 class="pillar-title">Private by design</h3>
+      <p class="pillar-text">No accounts. No logins. No analytics. No telemetry. Location search uses Apple's MapKit, anonymous with no Apple ID attached and no third-party API. Your entries never leave your own device.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon">📁</div>
+      <h3 class="pillar-title">Your data, always</h3>
+      <p class="pillar-text">Every entry is stored in a plain Markdown file, with photos stored right alongside them. Open entries in any text editor. Export to JSON, CSV, or with photos, PDF. Everything is yours, with or without the app.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon">🌍</div>
+      <h3 class="pillar-title">Geography-aware</h3>
+      <p class="pillar-text">Entries are organised by continent, country, city, and place. A structure that keeps your files tidy and readable even without the app. Powered by MapKit, no third-party API required.</p>
+    </div>
+  </div>
+</section>
+
+<!-- themes browser -->
+<section class="section-full reveal" id="themes">
+  <div class="themes-wrap">
+    <span class="eyebrow">Themes</span>
+    <h2 class="sec-title">Ten ways to<br><em>see the world.</em></h2>
+    <p class="sec-desc" style="margin-bottom:40px;">From Arctic mornings to Warm nights. Choose a theme that feels right.</p>
+
+    <div class="swatches" id="swatches" role="listbox" aria-label="Choose theme"></div>
+    <div class="theme-label" id="themeLabel">Modern</div>
+
+    <div class="theme-img-wrap">
+      <img id="themeImg" src="screenshots/theme-modern.webp" alt="Earthling — Modern theme" class="theme-img">
+    </div>
+  </div>
+</section>
+
+<!-- features -->
+<section class="section reveal" id="features" aria-labelledby="features-title">
+  <span class="eyebrow">Features</span>
+  <h2 class="sec-title" id="features-title">Everything you need.<br><em>Nothing you don't.</em></h2>
+  <p class="sec-desc">A simple travel notebook, containing only the essentials.</p>
+
+  <div class="feature-grid">
+    <div class="feature">
+      <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <h3 class="feature-title">MapKit location autocomplete</h3>
+      <p class="feature-body">City search via Apple's MapKit. No third-party API, no cost, no account required. Search queries go to Apple anonymously. Coordinates saved locally and never leave your device.</p>
+    </div>
+    <div class="feature">
+      <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      <h3 class="feature-title">World map view</h3>
+      <p class="feature-body">Every entry drops a pin. A world map builds itself as you travel,powered by GPS coordinates captured silently whenever you log a location. No setup required.</p>
+    </div>
+    <div class="feature">
+      <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <h3 class="feature-title">Markdown writing &amp; rendering</h3>
+      <p class="feature-body">Write in Markdown via the included Textual package. A generous, distraction-free writing area. Bold, italic, lists, headings, quotes, and more.</p>
+    </div>
+    <div class="feature">
+      <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <h3 class="feature-title">Photo attachments</h3>
+      <p class="feature-body">Insert photos directly into entries, inline or as a gallery, with size and alignment controls. Drag from Finder or paste from clipboard. Photos live in your sandbox alongside your writing.</p>
+    </div>
+    <div class="feature">
+      <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      <h3 class="feature-title">Geographic hierarchy</h3>
+      <p class="feature-body">Entries organise themselves into Continent > Country > City > Sublocation (optional), a structure that makes browsing the files easy and logical. The sublocation level is yours to name if you want to include one: neighbourhood, ward, trail, or island.</p>
+    </div>
+    <div class="feature">
+      <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>
+      <h3 class="feature-title">Export anywhere</h3>
+      <p class="feature-body">Export individual entries or your whole journal to PDF, JSON, or CSV. Human-readable Markdown files with YAML frontmatter, accessible without the app forever.</p>
+    </div>
+    <div class="feature">
+      <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <h3 class="feature-title">App Sandbox</h3>
+      <p class="feature-body">Hardened sandbox enabled and least-privilege file access at all times. Your data stays secure exactly where you put it.</p>
+    </div>
+    <div class="feature">
+      <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+      <h3 class="feature-title">Ten visual themes</h3>
+      <p class="feature-body">Built-in palette ranging from Arctic and Sage to Terminal and Dusk. Themes apply instantly from the Settings menu, so try them all.</p>
+    </div>
+  </div>
+</section>
+
+<!-- open source -->
+<section class="opensource reveal" id="source" aria-labelledby="source-title">
+  <span class="eyebrow">Open Source</span>
+  <h2 class="sec-title" id="source-title">Free to use.<br><em>Free to read.</em></h2>
+  <p class="sec-desc">Earthling is MIT licensed. Read the source, fork it, build it yourself. Built with Xcode and a free Apple ID.</p>
+  <p class="sec-desc" style="margin-top:16px;">The Earthling name and mark are reserved. Forks, please use a different name.</p>
+  <div class="os-btns" style="margin-top:40px;">
+    <a href="https://github.com/internet-elephant/earthling" class="btn-os-primary" target="_blank" rel="noopener">View on GitHub</a>
+    <a href="https://github.com/internet-elephant/earthling/blob/main/README.md" class="btn-os-ghost" target="_blank" rel="noopener">Read the README</a>
+    <a href="https://github.com/internet-elephant/earthling/blob/main/LICENSE" class="btn-os-ghost" target="_blank" rel="noopener">MIT License</a>
+  </div>
+</section>
+
+<!-- acknowledgments -->
+<div class="acks" aria-label="Built with">
+  <p class="acks-label">Built with</p>
+  <div class="acks-pills">
+    <a href="https://github.com/gonzalezreal/textual" class="ack-pill" target="_blank" rel="noopener">Textual — Markdown rendering</a>
+    <a href="https://developer.apple.com/maps/" class="ack-pill" target="_blank" rel="noopener">Apple MapKit — Location</a>
+    <a href="https://developer.apple.com/swift/" class="ack-pill" target="_blank" rel="noopener">SwiftUI &amp; AppKit</a>
+    <a href="https://claude.ai" class="ack-pill" target="_blank" rel="noopener">Claude — Design &amp; development partner</a>
+  </div>
+</div>
+
+<footer>
+  <span class="footer-left">Earthling — a project by Internet Elephant</span>
+  <span class="footer-right">© Internet Elephant 2026</span>
+</footer>
+
+<script>
+  /* ── themes ────────────────────────────────────────────────────── */
+  var THEMES = [
+    { id:'modern',   name:'Modern',   swatch:'#DDDBD7' },
+    { id:'warm',     name:'Warm',     swatch:'#D6CFBF' },
+    { id:'lavender', name:'Lavender', swatch:'#D9CCFA' },
+    { id:'rose',     name:'Rose',     swatch:'#F5C8D0' },
+    { id:'sage',     name:'Sage',     swatch:'#C8DCC8' },
+    { id:'arctic',   name:'Arctic',   swatch:'#CCE8F8' },
+    { id:'dusk',     name:'Dusk',     swatch:'#2E2840' },
+    { id:'slate',    name:'Slate',    swatch:'#2E3A50' },
+    { id:'dark',     name:'Dark',     swatch:'#3A3A3A' },
+    { id:'terminal', name:'Terminal', swatch:'#1A3A1A' },
+  ];
+
+  var swatchContainer = document.getElementById('swatches');
+  THEMES.forEach(function(t, i) {
+    var s = document.createElement('div');
+    s.className = 'swatch' + (t.id === 'modern' ? ' active' : '');
+    s.style.background = t.swatch;
+    s.setAttribute('role', 'option');
+    s.setAttribute('aria-label', t.name);
+    s.setAttribute('aria-selected', t.id === 'modern' ? 'true' : 'false');
+    s.title = t.name;
+    s.addEventListener('click', function() { applyTheme(t); });
+    swatchContainer.appendChild(s);
+  });
+
+  function applyTheme(t) {
+    document.querySelectorAll('.swatch').forEach(function(s) {
+      var active = s.title === t.name;
+      s.classList.toggle('active', active);
+      s.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    document.getElementById('themeLabel').textContent = t.name;
+    var img = document.getElementById('themeImg');
+    img.classList.add('fading');
+    setTimeout(function() {
+      img.src = 'screenshots/theme-' + t.id + '.webp';
+      img.alt = 'Earthling — ' + t.name + ' theme';
+      img.classList.remove('fading');
+    }, 180);
+  }
+
+  /* ── scroll reveal ─────────────────────────────────────────────── */
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) e.target.classList.add('visible');
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal').forEach(function(el) { observer.observe(el); });
+
+
+  /* ── preload themes ────────────────────────────────────────────── */
+  THEMES.forEach(function(t) {
+    var i = new Image();
+    i.src = 'screenshots/theme-' + t.id + '.webp';
+  });
+
+</script>
+</body>
+</html>
